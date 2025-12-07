@@ -8,13 +8,13 @@ on:
 
 jobs:
   test:
-    name: build and test
-    runs-on: ${{ matrix.os }}-latest
-    strategy:
+  name: build and test
+  runs-on: ${{ matrix.os }}-latest
+  strategy:
         fail-fast: false
       matrix:
         os: ['ubuntu', 'macos']
-    steps:
+  steps:
     - uses: actions/checkout@v4
     - name: autoconf
       run: autoreconf -ivf
