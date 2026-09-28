@@ -26,6 +26,31 @@ jobs:
         run: ASAN_OPTIONS=detect_leaks=0 make -j $JOBS check
       - name: Distcheck
         run: make -j $JOBS distcheck
+  macos:
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      fail-fast: false
+      matrix:
+        runner: [macos-latest, darwin-27]
+    steps:
+      - name: Check out
+        uses: actions/checkout@v4
+      - name: Install prerequisites
+        run: brew install autoconf automake libtool
+      - name: Configure
+        run: |
+          autoreconf -i
+          build_dir=$(mktemp -d "$RUNNER_TEMP/m4ri-build.XXXXXXXX")
+          echo "BUILD_DIR=$build_dir" >> "$GITHUB_ENV"
+          cd "$build_dir"
+          "$GITHUB_WORKSPACE/configure" --enable-debug
+
+      - name: Check
+        run: make -C "$BUILD_DIR" -j "$JOBS" check
+      - name: Distcheck
+        run: |
+          trap 'chmod -R u+w "$BUILD_DIR" 2>/dev/null || true' EXIT
+          make -C "$BUILD_DIR" -j "$JOBS" distcheck
   windows:
     runs-on: windows-latest
     defaults:
@@ -44,6 +69,7 @@ jobs:
             mingw-w64-x86_64-autotools
             mingw-w64-x86_64-libtool
             mingw-w64-x86_64-pkg-config
+            mingw-w64-x86_64-python
             autoconf
             automake
             make

@@ -1,14 +1,14 @@
-AC_INIT([m4ri],[20250128])
+AC_INIT([m4ri],[20260122])
 
 # See http://www.gnu.org/software/libtool/manual/html_node/Updating-version-info.html
-LT_VERSION=1:0:0
+LT_VERSION=2:1:0
 AC_SUBST(LT_VERSION)
 
 AC_CANONICAL_HOST
 
 AC_CONFIG_SRCDIR(m4ri/brilliantrussian.c)
 
-AM_INIT_AUTOMAKE([nostdinc])
+AM_INIT_AUTOMAKE([nostdinc foreign])
 
 dnl Include maintainer mode targets.
 AM_MAINTAINER_MODE
@@ -60,9 +60,9 @@ AS_IF([test "x$enable_sse2" != "xno"], [
 ])
 
 AS_IF([test "x$enable_sse2" = "xno"],
-    [M4RI_HAVE_SSE2=0],
-    [M4RI_HAVE_SSE2="(defined(__SSE2__) && __SSE2__)"])
-AC_SUBST(M4RI_HAVE_SSE2)
+    [M4RI_SSE2_ENABLED=0],
+    [M4RI_SSE2_ENABLED=1])
+AC_SUBST(M4RI_SSE2_ENABLED)
 
 AC_ARG_WITH(papi,
     AS_HELP_STRING([--with-papi@<:@=PATH@:>@], [The PAPI install prefix, if configure can't find it.]),
@@ -103,6 +103,18 @@ else
 fi
 AC_SUBST(M4RI_HAVE_OPENMP)
 
+# The bench/ benchmark suite links against a local copy of libcpucycles
+# (bench/libcpucycles-20260625), whose build system is driven by a python3
+# ./configure script. Benchmarks are not built by default, so a missing
+# python3 only warrants a warning.
+AC_PATH_PROG([PYTHON3], [python3])
+AS_IF([test -z "$PYTHON3"],
+   [AC_MSG_WARN([python3 not found. It is required to build the bench/ benchmark suite.])])
+
+# libcpucycles is linked statically into the benchmarks; on old systems
+# clock_gettime() is only provided by librt.
+AC_CHECK_LIB([rt], [clock_gettime], [M4RI_RT_LIBS="-lrt"], [M4RI_RT_LIBS=""])
+AC_SUBST(M4RI_RT_LIBS)
 
 # Thread-Safety
 M4RI_ENABLE_MZD_CACHE=1

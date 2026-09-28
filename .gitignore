@@ -45,9 +45,8 @@ test_alignment
 /bench/bench_ple
 /bench/bench_rank
 /bench/bench_trsm
-/bench/cpucycles-20060326/cpucycles.h
-/bench/cpucycles-20060326/do.notes
-/bench/cpucycles.h
+/bench/libcpucycles.a
+/bench/libcpucycles-20260625/build/
 /*/.deps/
 /*/.dirstamp
 /m4ri/config.h
@@ -59,3 +58,10 @@ test_alignment
 
 /compile_commands.json
 /.cache/
+/scratch.c
+/configure~
+/tests/test_pluq
+
+# libcpucycles ships its own ./configure and Makefile;
+!bench/libcpucycles-20260625/configure
+!bench/libcpucycles-20260625/Makefile
